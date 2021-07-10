@@ -14,12 +14,14 @@ namespace RPG.Control
         Fighter fighter;
         GameObject player;
         Mover mover;
-
+        [SerializeField] PatrolPath patrolPath;
         float timeSinceLastSawPlayer = Mathf.Infinity;
         [SerializeField] float suspicionTime = 3f;
 
-        Vector3 guardPosition;
+        [SerializeField] float waypointTolerance = 1f;
 
+        Vector3 guardPosition;
+        int currentWaypointIndex = 0;
         private void Awake()
         {
             fighter = GetComponent<Fighter>();
@@ -46,15 +48,40 @@ namespace RPG.Control
             else
 
             {
-                GuardBehaviour();
+                PatrolBehaviour();
             }
             timeSinceLastSawPlayer += Time.deltaTime;
             
         }
 
-        private void GuardBehaviour()
+        private void PatrolBehaviour()
         {
-            mover.StartMoveAction(guardPosition);
+            Vector3 nextPosition = guardPosition;
+            if (patrolPath != null)
+            {
+                if (AtWaypoint())
+                {
+                    CycleWaypoint();
+                }
+                nextPosition = GetCurrentWaypoint();
+            }
+            mover.StartMoveAction(nextPosition);
+        }
+
+        private Vector3 GetCurrentWaypoint()
+        {
+            return patrolPath.GetWaypoint(currentWaypointIndex);
+        }
+
+        private void CycleWaypoint()
+        {
+            currentWaypointIndex = patrolPath.GetNextWaypointIndex(currentWaypointIndex); 
+        }
+
+        private bool AtWaypoint()
+        {
+            float distanceToWaypoint = Vector3.Distance(transform.position, GetCurrentWaypoint());
+            return distanceToWaypoint < waypointTolerance; 
         }
 
         private void SuspicionBehaviour()
