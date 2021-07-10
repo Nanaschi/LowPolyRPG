@@ -279,6 +279,10 @@ PrefabInstance:
       propertyPath: alertDistance
       value: 5.88
       objectReference: {fileID: 0}
+    - target: {fileID: 3653837513603432023, guid: 62b3fdecf5945d041938c904a2236f70, type: 3}
+      propertyPath: suspicionTime
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 7003432788336680080, guid: 62b3fdecf5945d041938c904a2236f70, type: 3}
       propertyPath: m_RootOrder
       value: 6

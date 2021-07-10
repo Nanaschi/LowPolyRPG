@@ -15,6 +15,9 @@ namespace RPG.Control
         GameObject player;
         Mover mover;
 
+        float timeSinceLastSawPlayer = Mathf.Infinity;
+        [SerializeField] float suspicionTime = 3f;
+
         Vector3 guardPosition;
 
         private void Awake()
@@ -28,28 +31,41 @@ namespace RPG.Control
 
         private void Update()
         {
-            if (health.IsDead()) return;    
+            if (health.IsDead()) return;
 
-            if (GettingDistanceToThePlayer() && fighter.CanAttack(player)) 
+            if (GettingDistanceToThePlayer() && fighter.CanAttack(player))
             {
-                fighter.Attack(player);
-
-                print(gameObject.name + " starts chasing and the distance between us is ");
-
-            } else 
-            
-            {
-              
-                    fighter.Cancel();
-                mover.StartMoveAction(guardPosition);
-
+                timeSinceLastSawPlayer = 0;
+                AttackBehaviour();
 
             }
+            else if (!GettingDistanceToThePlayer() && timeSinceLastSawPlayer <= suspicionTime)
+            {
+                SuspicionBehaviour();
+            }
+            else
+
+            {
+                GuardBehaviour();
+            }
+            timeSinceLastSawPlayer += Time.deltaTime;
             
         }
 
+        private void GuardBehaviour()
+        {
+            mover.StartMoveAction(guardPosition);
+        }
 
+        private void SuspicionBehaviour()
+        {
+            GetComponent<ActionScheduler>().CancelCurrentAction();
+        }
 
+        private void AttackBehaviour()
+        {
+            fighter.Attack(player);
+        }
 
         private bool GettingDistanceToThePlayer()
         {
